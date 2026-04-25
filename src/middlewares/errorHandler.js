@@ -1,22 +1,39 @@
-import { constants } from "../../constants.js";
+import { constants } from "../constants.js";
 
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
+
+  if (err.name === "CastError") {
+    return res.status(400).json({ title: "Invalid Id", message: "The requested resource id is invalid" });
+  }
+
+  if (err.code === 11000) {
+    return res.status(400).json({ title: "Duplicate Value", message: "E-mail already registered" });
+  }
+
+  const payload = {
+    message: err.message || "Something went wrong",
+  };
+
+  if (process.env.NODE_ENV !== "production") {
+    payload.stackTrace = err.stack;
+  }
+
   switch (statusCode) {
     case constants.VALIDATION_ERROR:
-      res.json({ title: "Validation Failed", message: err.message, stackTrace: err.stack });
+      res.status(statusCode).json({ title: "Validation Failed", ...payload });
       break;
     case constants.NOT_FOUND:
-      res.json({ title: "Not Found", message: err.message, stackTrace: err.stack });
+      res.status(statusCode).json({ title: "Not Found", ...payload });
       break;
     case constants.FORBIDDEN:
-      res.json({ title: "Forbidden", message: err.message, stackTrace: err.stack });
+      res.status(statusCode).json({ title: "Forbidden", ...payload });
       break;
     case constants.UNAUTHORIZED:
-      res.json({ title: "Not Authorised", message: err.message, stackTrace: err.stack });
+      res.status(statusCode).json({ title: "Not Authorised", ...payload });
       break;
     default:
-      console.log("No Error!");
+      res.status(500).json({ title: "Server Error", ...payload });
       break;
   }
 };
