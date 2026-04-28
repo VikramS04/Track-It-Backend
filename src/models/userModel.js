@@ -1,5 +1,46 @@
 import mongoose from "mongoose";
 
+const notificationSettingsSchema = new mongoose.Schema({
+  budget: {
+    type: Boolean,
+    default: true,
+  },
+  weekly: {
+    type: Boolean,
+    default: true,
+  },
+  tips: {
+    type: Boolean,
+    default: false,
+  },
+}, { _id: false });
+
+const userSettingsSchema = new mongoose.Schema({
+  currency: {
+    type: String,
+    default: "INR",
+    trim: true,
+  },
+  darkMode: {
+    type: Boolean,
+    default: true,
+  },
+  monthStartDay: {
+    type: String,
+    default: "1st",
+    trim: true,
+  },
+  defaultView: {
+    type: String,
+    default: "dashboard",
+    trim: true,
+  },
+  notifications: {
+    type: notificationSettingsSchema,
+    default: () => ({}),
+  },
+}, { _id: false });
+
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -22,6 +63,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add password"],
     select: false
+  },
+  settings: {
+    type: userSettingsSchema,
+    default: () => ({}),
   }
 },{
   timestamps: true

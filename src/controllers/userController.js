@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import User from "../models/userModel.js";
+import Budget from "../models/budgetModel.js";
+import Expense from "../models/expenseModel.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { createAccessToken } from "../utils/token.js";
 
@@ -61,4 +63,93 @@ if (!user || !passwordMatches) {
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
   res.json({ user: req.user });
+});
+
+export const updateCurrentUser = asyncHandler(async (req, res) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    settings,
+  } = req.body;
+
+  if (firstName !== undefined) {
+    req.user.firstName = firstName;
+  }
+
+  if (lastName !== undefined) {
+    req.user.lastName = lastName;
+  }
+
+  if (email !== undefined) {
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      res.status(400);
+      throw new Error("Email cannot be empty");
+    }
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+      _id: { $ne: req.user._id },
+    });
+
+    if (existingUser) {
+      res.status(400);
+      throw new Error("E-mail already registered");
+    }
+
+    req.user.email = normalizedEmail;
+  }
+
+  if (settings) {
+    req.user.settings = {
+      ...req.user.settings?.toObject?.(),
+      ...settings,
+      notifications: {
+        ...req.user.settings?.notifications?.toObject?.(),
+        ...settings.notifications,
+      },
+    };
+  }
+
+  await req.user.save();
+
+  res.json({ user: req.user });
+});
+
+export const exportUserData = asyncHandler(async (req, res) => {
+  const [budgets, expenses] = await Promise.all([
+    Budget.find({ user: req.user._id }).sort({ createdAt: 1 }),
+    Expense.find({ user: req.user._id }).sort({ date: -1, createdAt: -1 }),
+  ]);
+
+  res.json({
+    export: {
+      user: req.user,
+      budgets,
+      expenses,
+      exportedAt: new Date().toISOString(),
+    },
+  });
+});
+
+export const clearUserData = asyncHandler(async (req, res) => {
+  await Promise.all([
+    Budget.deleteMany({ user: req.user._id }),
+    Expense.deleteMany({ user: req.user._id }),
+  ]);
+
+  res.json({ message: "All budgets and expenses cleared" });
+});
+
+export const deleteCurrentUser = asyncHandler(async (req, res) => {
+  await Promise.all([
+    Budget.deleteMany({ user: req.user._id }),
+    Expense.deleteMany({ user: req.user._id }),
+  ]);
+
+  await User.deleteOne({ _id: req.user._id });
+
+  res.json({ message: "Account deleted" });
 });

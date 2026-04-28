@@ -4,12 +4,12 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { getCurrentMonthRange } from "../utils/dateRanges.js";
 
 const defaultBudgets = [
-  { name: "Food & Dining", category: "Food", icon: "🛒", total: 10000, color: "bg-green-500", colorHex: "#22c55e" },
-  { name: "Transport", category: "Transport", icon: "🚗", total: 4000, color: "bg-yellow-500", colorHex: "#eab308" },
-  { name: "Entertainment", category: "Entertainment", icon: "🎬", total: 2000, color: "bg-red-500", colorHex: "#ef4444" },
-  { name: "Utilities", category: "Utilities", icon: "⚡", total: 5000, color: "bg-blue-500", colorHex: "#3b82f6" },
-  { name: "Health", category: "Health", icon: "💪", total: 3000, color: "bg-purple-500", colorHex: "#a855f7" },
-  { name: "Shopping", category: "Shopping", icon: "🛍️", total: 5000, color: "bg-pink-500", colorHex: "#ec4899" },
+  { name: "Food & Dining", category: "Food", icon: "🛒", total: 0, color: "bg-green-500", colorHex: "#22c55e" },
+  { name: "Transport", category: "Transport", icon: "🚗", total: 0, color: "bg-yellow-500", colorHex: "#eab308" },
+  { name: "Entertainment", category: "Entertainment", icon: "🎬", total: 0, color: "bg-red-500", colorHex: "#ef4444" },
+  { name: "Utilities", category: "Utilities", icon: "⚡", total: 0, color: "bg-blue-500", colorHex: "#3b82f6" },
+  { name: "Health", category: "Health", icon: "💪", total: 0, color: "bg-purple-500", colorHex: "#a855f7" },
+  { name: "Shopping", category: "Shopping", icon: "🛍️", total: 0, color: "bg-pink-500", colorHex: "#ec4899" },
 ];
 
 const toBudgetResponse = (budget, spent = 0) => {
