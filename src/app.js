@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { connectDb } from "./db/dbConnection.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import userRoutes from "./routes/userRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
@@ -20,6 +21,15 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   res.json({ message: "TrackIt API running" });
+});
+
+app.use("/api", async (req, res, next) => {
+  try {
+    await connectDb();
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/api/expenses", expenseRoutes);

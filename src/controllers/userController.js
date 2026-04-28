@@ -49,12 +49,12 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email }).select("+password");
-  const passwordMatches = user ? await bcrypt.compare(password, user.password) : false;
+  const passwordMatches = await bcrypt.compare(password, user?.password ?? "$2b$10$invalidhashpadding000000000000000000000000000000000000");
 
-  if (!user || !passwordMatches) {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
+if (!user || !passwordMatches) {
+  res.status(401);
+  throw new Error("Invalid email or password");
+}
 
   sendAuthResponse(res, 200, user);
 });
